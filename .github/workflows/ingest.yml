@@ -1,0 +1,100 @@
+name: Refresh Mutual Fund FAQ Corpus
+
+on:
+  schedule:
+    # 10:00 AM IST = 04:30 UTC, every day.
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Force rebuild even on multi-URL drift"
+        required: false
+        default: "true"
+      skip_fetch:
+        description: "Skip live fetch and re-use cached HTML"
+        required: false
+        default: "false"
+
+concurrency:
+  group: refresh-corpus
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Refresh corpus & rebuild index
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          # Install CPU-only torch first to avoid pulling in CUDA libs.
+          pip install --no-cache-dir torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
+          pip install --no-cache-dir -r requirements.txt
+
+      - name: Install Playwright Chromium
+        working-directory: backend
+        run: |
+          python -m playwright install chromium --with-deps
+
+      - name: Run refresh pipeline
+        working-directory: backend
+        env:
+          PYTHONUNBUFFERED: "1"
+          # Set HF_HOME so the model cache lives inside the workspace and
+          # gets uploaded as part of the artifact.
+          HF_HOME: ${{ github.workspace }}/.hf-cache
+        run: |
+          FORCE_FLAG="${{ github.event.inputs.force || 'true' }}"
+          SKIP_FETCH="${{ github.event.inputs.skip_fetch || 'false' }}"
+          python -c "
+          from mf_faq.ingestion.pipeline import refresh
+          import json, sys
+          force = '$FORCE_FLAG'.lower() == 'true'
+          skip_fetch = '$SKIP_FETCH'.lower() == 'true'
+          res = refresh(force=force, skip_fetch=skip_fetch)
+          print(json.dumps(res.to_dict(), indent=2, default=str))
+          if res.outcome not in ('ok', 'partial'):
+              sys.exit(1)
+          "
+
+      - name: Run end-to-end POC
+        working-directory: backend
+        env:
+          HF_HOME: ${{ github.workspace }}/.hf-cache
+        run: |
+          python -m tests.test_core
+
+      - name: Run compliance + format gate
+        working-directory: backend
+        env:
+          HF_HOME: ${{ github.workspace }}/.hf-cache
+        run: |
+          python -m tests.test_eval || (echo "::error::eval/compliance gate failed" && exit 1)
+
+      - name: Upload corpus + index as artifact
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mf_faq-index-${{ github.run_id }}
+          path: |
+            backend/data/index/manifest.json
+            backend/data/index/refresh_log.jsonl
+            backend/data/index/embedder.json
+            backend/data/index/chunks.jsonl
+            backend/data/index/bm25.pkl
+            backend/data/index/chroma/
+            backend/data/processed/**/cleaned.json
+          if-no-files-found: warn
+          retention-days: 14

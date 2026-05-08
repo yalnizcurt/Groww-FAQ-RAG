@@ -1,0 +1,14 @@
+/* Tailwind base styles + global resets that ship with the template. We override
+   typography here for the Inter font that the dark theme uses.            */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #07080b;
+}
+
+code {
+  font-family: "JetBrains Mono", source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}

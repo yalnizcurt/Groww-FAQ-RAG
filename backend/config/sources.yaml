@@ -1,0 +1,71 @@
+# Mutual Fund FAQ Assistant — Closed Corpus
+# IMPORTANT: This file is the single source of truth for what the assistant may
+# ingest, retrieve from, or cite. Any URL not present here MUST NOT appear in
+# any answer. The Phase 3 post-processor and Phase 5 CI gate enforce this.
+
+amc:
+  id: hdfc_mf
+  name: HDFC Mutual Fund
+  full_name: HDFC Asset Management Company Ltd.
+
+schemes:
+  - id: hdfc_mid_cap
+    name: HDFC Mid Cap Fund - Direct Growth
+    aliases:
+      - HDFC Mid Cap
+      - HDFC Mid Cap Fund
+      - HDFC Mid-Cap Fund
+      - HDFC Midcap Fund
+    category: Mid Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_equity
+    name: HDFC Equity Fund - Direct Growth
+    aliases:
+      - HDFC Equity
+      - HDFC Equity Fund
+      - HDFC Flexi Cap
+    category: Flexi Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_focused
+    name: HDFC Focused Fund - Direct Growth
+    aliases:
+      - HDFC Focused
+      - HDFC Focused 30
+      - HDFC Focused Fund
+    category: Focused
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth
+        doc_type: Product_Page
+
+  - id: hdfc_elss
+    name: HDFC ELSS Tax Saver - Direct Plan Growth
+    aliases:
+      - HDFC ELSS
+      - HDFC ELSS Tax Saver
+      - HDFC Tax Saver
+      - HDFC Tax Saver Fund
+    category: ELSS
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth
+        doc_type: Product_Page
+
+  - id: hdfc_large_cap
+    name: HDFC Large Cap Fund - Direct Growth
+    aliases:
+      - HDFC Large Cap
+      - HDFC Large Cap Fund
+      - HDFC Top 100
+      - HDFC Top 200
+    category: Large Cap
+    sources:
+      - url: https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth
+        doc_type: Product_Page
+
+# Hard rule: count must equal 5. Build / startup will fail otherwise.
+expected_url_count: 5

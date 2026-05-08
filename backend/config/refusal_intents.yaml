@@ -1,0 +1,161 @@
+# Refusal taxonomy + conversational response copy.
+# Tone: warm, concise, non-corporate. Never defensive.
+
+intents:
+  - id: advisory
+    description: User asks for an investment recommendation
+    patterns:
+      - should i invest
+      - should i buy
+      - should i put money
+      - is this a good fund
+      - is it a good investment
+      - good investment
+      - good fund
+      - is this safe
+      - is this risky
+      - recommend a fund
+      - recommend me
+      - which fund should
+      - what should i pick
+      - tell me which to buy
+    response: >-
+      I can help with factual scheme details like expense ratio, exit load,
+      lock-in, or risk level — but I can't recommend or advise on investments.
+
+  - id: comparison
+    description: User asks for a head-to-head comparison
+    patterns:
+      - which is better
+      - which is best
+      - compare
+      - vs
+      - versus
+      - or which one
+      - which fund gives more
+      - which performs better
+      - better than
+    response: >-
+      I can share facts about individual schemes, but I can't compare or
+      rank them. Want me to look up a specific detail for one of the HDFC schemes?
+
+  - id: prediction
+    description: User asks about future/past performance, returns, or investment calculations
+    patterns:
+      - will it grow
+      - will it give
+      - will give
+      - will return
+      - will it return
+      - future return
+      - expected return
+      - how much will i get
+      - how much will it return
+      - what will the nav
+      - what will be the
+      - will the price
+      - will the fund
+      - 5 year return
+      - 10 year return
+      - 1 year return
+      - 3 year return
+      - past performance
+      - returns of
+      - past returns
+      - historical returns
+      - cagr of
+      - if i invested
+      - if i had invested
+      - if i invest
+      - if i would have invested
+      - would have invested
+      - had invested
+      - calculate return
+      - calculate my return
+      - what would i get
+      - what would i have
+      - how much would i
+      - how much profit
+      - how much would my
+      - what are the returns
+      - what is the return
+      - returns for last
+      - returns for
+      - investment return
+      - invested 1000
+      - invested 5000
+      - invested 6000
+      - invested 10000
+      - lumpsum return
+      - sip return
+      - sip calculator
+      - return calculator
+      - annualized return
+      - absolute return
+      - profit on
+      - growth of my investment
+      - how much would it become
+      - would have become
+      - would it become
+      - maturity amount
+      - maturity value
+    response: >-
+      I can help with factual scheme details, but I can't calculate or predict
+      investment returns. For performance information, please refer to the
+      official scheme factsheet on Groww.
+
+  - id: capital_gains_walkthrough
+    description: User asks for capital gains / tax statement download walkthrough (off-corpus)
+    patterns:
+      - download capital gain
+      - capital gains report
+      - tax statement
+      - download statement
+      - account statement
+      - how do i download
+      - where do i get my statement
+    response: >-
+      That's outside what I can verify from my sources. I'm best at scheme
+      facts like expense ratio, exit load, lock-in, risk level, or benchmark.
+
+# Graceful fallback — warm, not robotic.
+dont_know_without_link: >-
+  I couldn't verify that from the approved sources. I can help with
+  expense ratio, exit load, lock-in, riskometer, benchmark, or SIP minimum
+  for the supported HDFC schemes.
+
+# PII block — firm but not scary.
+pii_block: >-
+  I noticed what looks like personal information in your message. I don't
+  process personal data — could you rephrase without any PAN, Aadhaar,
+  account numbers, email, or phone details?
+
+# Greeting response template.
+greeting: >-
+  Hey! I'm the Groww Mutual Fund Facts Assistant. I can look up factual
+  details like expense ratio, exit load, risk level, lock-in, benchmark,
+  or SIP minimum for HDFC mutual fund schemes. What would you like to know?
+
+# Conversational acknowledgment template.
+conversational_ack: >-
+  Got it! Let me know if you'd like to check anything else — I can look up
+  expense ratio, exit load, risk level, lock-in, benchmark, or SIP minimum.
+
+# Banned tokens — must not appear in any answer body.
+banned_tokens:
+  - recommend
+  - recommended
+  - should invest
+  - shouldn't invest
+  - better than
+  - worse than
+  - will outperform
+  - will beat
+  - guaranteed return
+  - sure-shot
+  - risk-free
+  - definitely buy
+  - must buy
+
+# Educational fallback scheme.
+fallback_scheme_id: hdfc_equity
