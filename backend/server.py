@@ -14,6 +14,8 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field
 
@@ -394,3 +396,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Serve static files from React build directory
+# We assume the build directory is in ../frontend/build relative to server.py
+# In Docker, we will copy it there.
+FRONTEND_BUILD_DIR = ROOT_DIR.parent / "frontend" / "build"
+
+if FRONTEND_BUILD_DIR.exists():
+    app.mount("/static", StaticFiles(directory=FRONTEND_BUILD_DIR / "static"), name="static")
+
+    @app.get("/{full_path:path}")
+    async def serve_react_app(full_path: str):
+        # If it's an API route that wasn't matched, let it 404
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="API route not found")
+        
+        # If the file exists in the build directory, serve it
+        file_path = FRONTEND_BUILD_DIR / full_path
+        if file_path.is_file():
+            return FileResponse(file_path)
+        
+        # Otherwise, serve index.html for SPA routing
+        return FileResponse(FRONTEND_BUILD_DIR / "index.html")
+else:
+    logger.warning("Frontend build directory not found at %s. Static serving disabled.", FRONTEND_BUILD_DIR)

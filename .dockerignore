@@ -1,0 +1,14 @@
+node_modules
+build
+.git
+.env
+__pycache__
+*.pyc
+venv
+.venv
+.DS_Store
+backend/data/raw
+backend/data/processed
+backend/tests
+frontend/node_modules
+frontend/build

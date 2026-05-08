@@ -1,0 +1,44 @@
+# Stage 1: Build the React frontend
+FROM node:22-slim AS frontend-builder
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm install --frozen-lockfile || npm install
+COPY frontend/ ./
+# Ensure production API URL is relative to the same host
+ENV REACT_APP_BACKEND_URL=""
+RUN npm run build
+
+# Stage 2: Python Backend
+FROM python:3.9-slim
+WORKDIR /app
+
+# Install system dependencies for Playwright and ML libraries
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright and its browser dependencies
+RUN playwright install --with-deps chromium
+
+# Copy backend code
+COPY backend/ ./backend
+
+# Copy built frontend assets to the expected path relative to ROOT_DIR
+COPY --from=frontend-builder /app/frontend/build /app/frontend/build
+
+# Expose port (Cloud Run uses PORT env var, defaults to 8080)
+ENV PORT=8080
+EXPOSE 8080
+
+# Pre-download ML models to bake them into the image (optional but recommended for speed)
+RUN python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
+RUN python3 -c "from sentence_transformers import CrossEncoder; CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')"
+
+# Start the server
+WORKDIR /app/backend
+CMD uvicorn server:app --host 0.0.0.0 --port $PORT
