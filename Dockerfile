@@ -9,7 +9,7 @@ ENV REACT_APP_BACKEND_URL=""
 RUN npm run build
 
 # Stage 2: Python Backend
-FROM python:3.9-slim
+FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies for Playwright and ML libraries
