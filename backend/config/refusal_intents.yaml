@@ -20,8 +20,9 @@ intents:
       - what should i pick
       - tell me which to buy
     response: >-
-      I can help with factual scheme details like expense ratio, exit load,
-      lock-in, or risk level — but I can't recommend or advise on investments.
+      I can look up factual scheme details like expense ratio, exit load,
+      lock-in, or risk level — but investment decisions are outside my scope.
+      I'm a facts-only assistant.
 
   - id: comparison
     description: User asks for a head-to-head comparison
