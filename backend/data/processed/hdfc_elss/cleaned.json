@@ -1,0 +1,36 @@
+{
+  "scheme_id": "hdfc_elss",
+  "source_url": "https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth",
+  "fetched_at": "2026-05-08T19:01:07.106649+00:00",
+  "cleaned_at": "2026-05-08T19:01:12.901483+00:00",
+  "last_updated": "2026-05-08",
+  "content_hash": "sha256:c30d7a227a62e0126bb3d7954740c88cbdc41c01c93bdd09de1e2283af517262",
+  "stable_content_hash": "sha256:759df2f4d37217e9a620543a05b2f174013d0a21a968529ec3b58f7336e6db0a",
+  "sections": [
+    {
+      "name": "Fund Details",
+      "text": "NAV: 08 May '26 | ₹1,464.28 | Min. for SIP | ₹500 | Fund size (AUM) | ₹14,615.19 Cr | Expense ratio | 1.16% | Rating | 5",
+      "source": "widget"
+    },
+    {
+      "name": "Riskometer",
+      "text": "Riskometer level for this scheme: Very High Risk. Risk level: Very High. Risk classification per the SEBI riskometer: Very High Risk.",
+      "source": "derived"
+    },
+    {
+      "name": "Exit Load and Tax",
+      "text": "ELSS • 3Y Lock-in Equity ELSS Very High Risk",
+      "source": "html_section"
+    },
+    {
+      "name": "Minimum Investments",
+      "text": "Min. for 1st investment ₹500 Min. for 2nd investment ₹500 Min. for SIP ₹500",
+      "source": "html_section"
+    },
+    {
+      "name": "Fund Manager",
+      "text": "AK Amar Kalkundrikar Dec 2025 - Present View details",
+      "source": "html_section"
+    }
+  ]
+}

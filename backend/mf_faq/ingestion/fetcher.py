@@ -45,7 +45,11 @@ DEFAULT_HEADERS = {
     "User-Agent": UA,
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     "Accept-Language": "en-IN,en;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
+    # NOTE: Do NOT set Accept-Encoding here. httpx handles decompression
+    # transparently when the header is absent. If we explicitly advertise
+    # gzip/br, some CDN edges return a compressed binary stream that
+    # httpx.Response.text() cannot decode, producing garbage HTML and
+    # failing every health-token check.
     "Cache-Control": "no-cache",
     "Pragma": "no-cache",
     "Upgrade-Insecure-Requests": "1",
@@ -56,7 +60,8 @@ DEFAULT_HEADERS = {
 }
 
 # Heuristic: HTML smaller than this likely means we got a thin shell or block page.
-MIN_HTML_BYTES = 50_000
+# Real Groww product pages are ~400 KB of SSR HTML; 200 KB is a safe floor.
+MIN_HTML_BYTES = 200_000
 # These tokens are expected on a healthy Groww product page.
 HEALTH_TOKENS = ("Expense Ratio", "Exit Load", "AUM")
 

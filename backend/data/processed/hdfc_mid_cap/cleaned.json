@@ -1,0 +1,36 @@
+{
+  "scheme_id": "hdfc_mid_cap",
+  "source_url": "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
+  "fetched_at": "2026-05-08T19:00:41.473779+00:00",
+  "cleaned_at": "2026-05-08T19:00:53.437695+00:00",
+  "last_updated": "2026-05-08",
+  "content_hash": "sha256:5e18f7957a00a9f1dde4d132ce1c2ef5749b755ac403ddaa715d13210c389582",
+  "stable_content_hash": "sha256:f8c93b746e57c0c4ab78a09cef0b765bbc91f6a48cfa9205f73e890ffac55d3e",
+  "sections": [
+    {
+      "name": "Fund Details",
+      "text": "NAV: 08 May '26 | ₹223.90 | Min. for SIP | ₹100 | Fund size (AUM) | ₹85,357.92 Cr | Expense ratio | 0.77% | Rating | 5",
+      "source": "widget"
+    },
+    {
+      "name": "Riskometer",
+      "text": "Riskometer level for this scheme: Very High Risk. Risk level: Very High. Risk classification per the SEBI riskometer: Very High Risk.",
+      "source": "derived"
+    },
+    {
+      "name": "Exit Load and Tax",
+      "text": "Exit load of 1% if redeemed within 1 year.",
+      "source": "html_section"
+    },
+    {
+      "name": "Minimum Investments",
+      "text": "Min. for 1st investment ₹100 Min. for 2nd investment ₹100 Min. for SIP ₹100",
+      "source": "html_section"
+    },
+    {
+      "name": "Fund Manager",
+      "text": "CS Chirag Setalvad Dec 2012 - Present View details",
+      "source": "html_section"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "built_at": "2026-05-08T19:01:20.294006+00:00",
+  "embedder": {
+    "model": "BAAI/bge-small-en-v1.5",
+    "dim": 384
+  },
+  "n_chunks": 25,
+  "per_scheme_counts": {
+    "hdfc_mid_cap": 5,
+    "hdfc_equity": 5,
+    "hdfc_focused": 5,
+    "hdfc_elss": 5,
+    "hdfc_large_cap": 5
+  },
+  "source_hashes": {
+    "hdfc_mid_cap": "sha256:f8c93b746e57c0c4ab78a09cef0b765bbc91f6a48cfa9205f73e890ffac55d3e",
+    "hdfc_equity": "sha256:3d092b3fd6f5efd9a71657c39cd7753a1be42b3ecd826f56d971d3335f899367",
+    "hdfc_focused": "sha256:0a8a0d5482dc913037a254aaedec301f64a6dce1cfc1bb2cfc1c25729cdacc3b",
+    "hdfc_elss": "sha256:759df2f4d37217e9a620543a05b2f174013d0a21a968529ec3b58f7336e6db0a",
+    "hdfc_large_cap": "sha256:c7bf233c0bc208d5a835ed5cdd79ca89418b58d1b2deb08cb0899a3da9a2cf3c"
+  },
+  "whitelist_urls": [
+    "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
+    "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
+    "https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth",
+    "https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth",
+    "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth"
+  ]
+}

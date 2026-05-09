@@ -60,8 +60,11 @@ chainlit.md
 
 # Backend specific
 backend/.env
-backend/data/
 backend/venv/
+# Only exclude raw HTML fetches (large, transient).
+# The built index (data/index/) and cleaned pages (data/processed/) ARE
+# committed so Docker builds and Cloud Run containers ship with real data.
+backend/data/raw/
 
 # Deployment
 .vercel

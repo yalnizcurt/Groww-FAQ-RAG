@@ -1,0 +1,36 @@
+{
+  "scheme_id": "hdfc_large_cap",
+  "source_url": "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth",
+  "fetched_at": "2026-05-08T19:01:12.902524+00:00",
+  "cleaned_at": "2026-05-08T19:01:18.706263+00:00",
+  "last_updated": "2026-05-08",
+  "content_hash": "sha256:b8cbb57c64f83edfcc037996fd5617f1576d3a2f28f69d10d67233bb843f3ccc",
+  "stable_content_hash": "sha256:c7bf233c0bc208d5a835ed5cdd79ca89418b58d1b2deb08cb0899a3da9a2cf3c",
+  "sections": [
+    {
+      "name": "Fund Details",
+      "text": "NAV: 08 May '26 | ₹1,205.37 | Min. for SIP | ₹100 | Fund size (AUM) | ₹35,458.50 Cr | Expense ratio | 1.04% | Rating | 4",
+      "source": "widget"
+    },
+    {
+      "name": "Riskometer",
+      "text": "Riskometer level for this scheme: Very High Risk. Risk level: Very High. Risk classification per the SEBI riskometer: Very High Risk.",
+      "source": "derived"
+    },
+    {
+      "name": "Exit Load and Tax",
+      "text": "Exit load of 1% if redeemed within 1 year",
+      "source": "html_section"
+    },
+    {
+      "name": "Minimum Investments",
+      "text": "Min. for 1st investment ₹100 Min. for 2nd investment ₹100 Min. for SIP ₹100",
+      "source": "html_section"
+    },
+    {
+      "name": "Fund Manager",
+      "text": "RB Rahul Baijal Jul 2022 - Present View details",
+      "source": "html_section"
+    }
+  ]
+}

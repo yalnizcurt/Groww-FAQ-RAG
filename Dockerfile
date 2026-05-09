@@ -35,10 +35,28 @@ COPY --from=frontend-builder /app/frontend/build /app/frontend/build
 ENV PORT=8080
 EXPOSE 8080
 
-# Pre-download ML models to bake them into the image (optional but recommended for speed)
+# Pre-download ML models to bake them into the image (speed up first request)
 RUN python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
 RUN python3 -c "from sentence_transformers import CrossEncoder; CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')"
 
-# Start the server
+# ---------------------------------------------------------------------------
+# Build-time corpus ingestion.
+# backend/data/ is gitignored so we must build the index here so the
+# container ships with real data. Cloud Build / CI passes GROQ_API_KEY as
+# a --build-arg; it is NOT baked into the final layer (only used to run
+# the ingest script which writes to the data/index/ folder on disk).
+# ---------------------------------------------------------------------------
 WORKDIR /app/backend
+RUN python3 -c "
+from mf_faq.ingestion.pipeline import refresh
+import json, sys, logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+res = refresh(force=True, skip_fetch=False)
+print(json.dumps(res.to_dict(), indent=2, default=str))
+if res.outcome not in ('ok', 'partial'):
+    print('WARNING: ingestion outcome =', res.outcome, '— container will start without index.')
+    print('Use /api/reingest after deployment to rebuild.')
+"
+
+# Start the server
 CMD uvicorn server:app --host 0.0.0.0 --port $PORT

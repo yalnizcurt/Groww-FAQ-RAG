@@ -24,9 +24,14 @@ jobs:
     name: Refresh corpus & rebuild index
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: write   # needed to commit index back to repo
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,6 +57,8 @@ jobs:
         working-directory: backend
         env:
           PYTHONUNBUFFERED: "1"
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: "llama-3.3-70b-versatile"
           # Set HF_HOME so the model cache lives inside the workspace and
           # gets uploaded as part of the artifact.
           HF_HOME: ${{ github.workspace }}/.hf-cache
@@ -82,6 +89,37 @@ jobs:
           HF_HOME: ${{ github.workspace }}/.hf-cache
         run: |
           python -m tests.test_eval || (echo "::error::eval/compliance gate failed" && exit 1)
+
+      # -----------------------------------------------------------------------
+      # Commit the freshly-built index back to the repository so that the next
+      # Docker build (and the Dockerfile's build-time ingest) picks up the
+      # latest data without needing a live network fetch every time.
+      # -----------------------------------------------------------------------
+      - name: Commit rebuilt index to repo
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Remove the data/ ignore rule so git can track the built index.
+          # We only add the index files — raw HTML is still excluded.
+          git rm -r --cached backend/data/ 2>/dev/null || true
+
+          # Stage only the built index (not raw HTML, not venv, etc.)
+          git add \
+            backend/data/index/manifest.json \
+            backend/data/index/chunks.jsonl \
+            backend/data/index/bm25.pkl \
+            backend/data/index/embedder.json \
+            backend/data/index/refresh_log.jsonl \
+            backend/data/processed/
+
+          # Check if there's anything to commit
+          if git diff --cached --quiet; then
+            echo "Index unchanged — nothing to commit."
+          else
+            git commit -m "chore(data): auto-refresh corpus index [skip ci]"
+            git push
+          fi
 
       - name: Upload corpus + index as artifact
         if: success() || failure()
