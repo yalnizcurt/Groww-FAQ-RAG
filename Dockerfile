@@ -47,16 +47,7 @@ RUN python3 -c "from sentence_transformers import CrossEncoder; CrossEncoder('cr
 # the ingest script which writes to the data/index/ folder on disk).
 # ---------------------------------------------------------------------------
 WORKDIR /app/backend
-RUN python3 -c "\
-from mf_faq.ingestion.pipeline import refresh\n\
-import json, sys, logging\n\
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')\n\
-res = refresh(force=True, skip_fetch=False)\n\
-print(json.dumps(res.to_dict(), indent=2, default=str))\n\
-if res.outcome not in ('ok', 'partial'):\n\
-    print('WARNING: ingestion outcome =', res.outcome, '— container will start without index.')\n\
-    print('Use /api/reingest after deployment to rebuild.')\n\
-"
+RUN python3 -c "from mf_faq.ingestion.pipeline import refresh; import json, sys, logging; logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s'); res = refresh(force=True, skip_fetch=False); print(json.dumps(res.to_dict(), indent=2, default=str)); print('WARNING: ingestion outcome =', res.outcome, '— container will start without index.') if res.outcome not in ('ok', 'partial') else None; print('Use /api/reingest after deployment to rebuild.') if res.outcome not in ('ok', 'partial') else None"
 
 # Start the server
 CMD uvicorn server:app --host 0.0.0.0 --port $PORT
