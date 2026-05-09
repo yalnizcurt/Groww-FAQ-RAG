@@ -29,7 +29,7 @@ from ..retrieval.hybrid import HybridRetriever, RetrievedChunk
 from ..retrieval.reranker import Reranker, confidence_margin
 from ..retrieval.scheme_resolver import resolve
 from .generator import generate_body
-from .intent import classify
+from .semantic_router import parse_query_semantically
 from .memory import SessionContext, detect_metric, get_session
 from .pii_guard import detect_pii
 from .post_processor import (
@@ -134,15 +134,28 @@ class Orchestrator:
             ctx.record(query or "", None, None, None, "pii")
             return self._make_result(ans, request_id, "pii", t0)
 
-        # --- 3. Intent classification ---
-        intent_res = classify(query or "")
+        # --- 3. Semantic Query Understanding ---
+        sem_intent = parse_query_semantically(
+            query or "", 
+            last_scheme_name=ctx.last_scheme_name, 
+            last_topic=ctx.last_metric
+        )
+        
+        # Override metric with LLM's inferred metric if it found one
+        if sem_intent.metric:
+            metric = sem_intent.metric
 
-        if intent_res.label == "greeting":
+        if sem_intent.is_pii:
+            ans = build_pii_block()
+            ctx.record(query or "", None, None, None, "pii")
+            return self._make_result(ans, request_id, "pii", t0)
+
+        if sem_intent.is_greeting:
             ans = build_greeting()
             ctx.record(query or "", None, None, None, "greeting")
             return self._make_result(ans, request_id, "greeting", t0)
 
-        if intent_res.label == "conversational":
+        if sem_intent.is_conversational:
             ans = build_conversational_ack(
                 scheme_id=ctx.last_scheme_id,
                 scheme_name=ctx.last_scheme_name,
@@ -152,7 +165,7 @@ class Orchestrator:
             return self._make_result(ans, request_id, "conversational", t0,
                                      scheme_id=ctx.last_scheme_id)
 
-        if intent_res.label == "dont_know":
+        if sem_intent.needs_clarification or sem_intent.capability == "out_of_domain":
             ans = build_dont_know(
                 scheme_id=ctx.last_scheme_id,
                 scheme_name=ctx.last_scheme_name,
@@ -160,8 +173,15 @@ class Orchestrator:
             ctx.record(query or "", None, None, None, "dont_know")
             return self._make_result(ans, request_id, "dont_know", t0)
 
-        if intent_res.label not in ("factual",):
-            ref = compose_refusal(query or "", intent_res)
+        if sem_intent.is_performance_query or sem_intent.is_comparison or sem_intent.is_advisory:
+            if sem_intent.is_performance_query:
+                ref_intent_id = "prediction"
+            elif sem_intent.is_comparison:
+                ref_intent_id = "comparison"
+            else:
+                ref_intent_id = "advisory"
+                
+            ref = compose_refusal(query or "", ref_intent_id)
             ans = build_refusal(
                 body=ref.body,
                 citation_url=ref.educational_url,
@@ -169,8 +189,8 @@ class Orchestrator:
                 scheme_id=ref.scheme_id,
                 scheme_name=_scheme_name_for(ref.scheme_id),
             )
-            ctx.record(query or "", ref.scheme_id, _scheme_name_for(ref.scheme_id), None, intent_res.label)
-            return self._make_result(ans, request_id, intent_res.label, t0,
+            ctx.record(query or "", ref.scheme_id, _scheme_name_for(ref.scheme_id), None, ref_intent_id)
+            return self._make_result(ans, request_id, ref_intent_id, t0,
                                      scheme_id=ref.scheme_id)
 
         # --- 4. Query expansion: resolve scheme from query or memory ---
@@ -220,11 +240,21 @@ class Orchestrator:
         margin = confidence_margin(reranked)
         top = reranked[0]
 
-        # --- 7. Confidence gate ---
+        # --- 7. Confidence & Semantic Validation gate ---
+        # Field-level validation: Ensure the retrieved chunk section matches the capability/metric.
+        validation_failed = False
+        if sem_intent.capability == "fund_costs" and top.chunk.section not in ["Exit Load and Tax", "Fund Details"]:
+            validation_failed = True
+        elif sem_intent.capability == "minimum_investment" and top.chunk.section not in ["Minimum Investments", "Fund Details"]:
+            validation_failed = True
+        
         if top.score < DEFAULT_CONF_THRESHOLD and margin < DEFAULT_MARGIN_THRESHOLD:
-            logger.info(
-                "[orchestrator] low confidence top=%.3f (margin=%.3f)", top.score, margin
-            )
+            logger.info("[orchestrator] low confidence top=%.3f (margin=%.3f)", top.score, margin)
+            validation_failed = True
+            
+        if validation_failed:
+            logger.info("[orchestrator] retrieval validation failed (capability=%s, metric=%s, section=%s)", 
+                        sem_intent.capability, sem_intent.metric, top.chunk.section)
             ans = build_dont_know(top.chunk.scheme_id, top.chunk.scheme_name)
             ctx.record(query or "", top.chunk.scheme_id, top.chunk.scheme_name, metric, "dont_know")
             return self._make_result(
