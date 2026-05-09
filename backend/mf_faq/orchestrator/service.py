@@ -165,7 +165,8 @@ class Orchestrator:
             return self._make_result(ans, request_id, "conversational", t0,
                                      scheme_id=ctx.last_scheme_id)
 
-        if sem_intent.needs_clarification or sem_intent.capability == "out_of_domain":
+        # 4. Clarification Gate
+        if sem_intent.needs_clarification or sem_intent.confidence < 0.6 or sem_intent.capability == "out_of_domain":
             ans = build_dont_know(
                 scheme_id=ctx.last_scheme_id,
                 scheme_name=ctx.last_scheme_name,
@@ -193,18 +194,25 @@ class Orchestrator:
             return self._make_result(ans, request_id, ref_intent_id, t0,
                                      scheme_id=ref.scheme_id)
 
-        # --- 4. Query expansion: resolve scheme from query or memory ---
+        # --- 4. Query expansion: resolve scheme from query, parser, or memory ---
         sm = resolve(query or "")
-        scheme_id = sm.scheme.id if sm else None
-        scheme_name = sm.scheme.name if sm else None
-
-        # Context inference: if no scheme in query, use last discussed scheme.
-        if not scheme_id and ctx.has_context:
+        if sm:
+            scheme_id = sm.scheme.id
+            scheme_name = sm.scheme.name
+        elif sem_intent.scheme_name and resolve(sem_intent.scheme_name):
+            sm_parser = resolve(sem_intent.scheme_name)
+            scheme_id = sm_parser.scheme.id
+            scheme_name = sm_parser.scheme.name
+            logger.info("[orchestrator] inferred scheme=%s from LLM parser", scheme_id)
+        elif ctx.has_context:
             scheme_id = ctx.last_scheme_id
             scheme_name = ctx.last_scheme_name
             logger.info(
                 "[orchestrator] inferred scheme=%s from session context", scheme_id
             )
+        else:
+            scheme_id = None
+            scheme_name = None
 
         # --- 5+6. Retrieve + rerank ---
         try:
@@ -245,7 +253,13 @@ class Orchestrator:
         validation_failed = False
         if sem_intent.capability == "fund_costs" and top.chunk.section not in ["Exit Load and Tax", "Fund Details"]:
             validation_failed = True
+        elif sem_intent.capability == "fund_risk" and top.chunk.section not in ["Riskometer"]:
+            validation_failed = True
         elif sem_intent.capability == "minimum_investment" and top.chunk.section not in ["Minimum Investments", "Fund Details"]:
+            validation_failed = True
+        elif sem_intent.capability == "fund_management" and top.chunk.section not in ["Fund Manager", "Fund Details"]:
+            validation_failed = True
+        elif sem_intent.capability == "portfolio" and top.chunk.section not in ["Portfolio", "Holdings"]:
             validation_failed = True
         
         if top.score < DEFAULT_CONF_THRESHOLD and margin < DEFAULT_MARGIN_THRESHOLD:

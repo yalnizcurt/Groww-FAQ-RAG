@@ -20,6 +20,8 @@ GROQ_TEMPERATURE = float(os.environ.get("GROQ_TEMPERATURE", "0.0"))
 class SemanticIntent:
     capability: str
     metric: Optional[str] = None
+    user_goal: Optional[str] = None
+    scheme_name: Optional[str] = None
     is_performance_query: bool = False
     is_pii: bool = False
     is_greeting: bool = False
@@ -53,15 +55,17 @@ Determine if the query falls into any special categories:
 
 Output MUST be a valid JSON object matching this schema exactly:
 {
+  "user_goal": "<short summary of what the user wants>",
+  "scheme_name": "<identified scheme or null>",
   "capability": "<one of the capabilities above>",
   "metric": "<the specific metric requested, e.g., 'expense ratio', 'riskometer', or null>",
   "is_performance_query": <true/false>,
+  "is_advisory": <true/false>,
+  "is_comparison": <true/false>,
   "is_pii": <true/false>,
   "is_greeting": <true/false>,
   "is_conversational": <true/false>,
-  "is_comparison": <true/false>,
-  "is_advisory": <true/false>,
-  "needs_clarification": <true/false, true if ambiguous or unclear>,
+  "needs_clarification": <true/false, true if highly ambiguous>,
   "confidence": <float 0.0 to 1.0>
 }
 """
@@ -98,6 +102,8 @@ def parse_query_semantically(query: str, last_scheme_name: Optional[str] = None,
         return SemanticIntent(
             capability=data.get("capability", "factual"),
             metric=data.get("metric"),
+            user_goal=data.get("user_goal"),
+            scheme_name=data.get("scheme_name"),
             is_performance_query=data.get("is_performance_query", False),
             is_pii=data.get("is_pii", False),
             is_greeting=data.get("is_greeting", False),
