@@ -1,6 +1,6 @@
 // craco.config.js
 const path = require("path");
-require("dotenv").config();
+try { require("dotenv").config(); } catch (_) { /* dotenv optional in Docker builds */ }
 
 
 

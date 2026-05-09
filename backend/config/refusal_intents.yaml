@@ -36,6 +36,9 @@ intents:
       - which fund gives more
       - which performs better
       - better than
+      - better for me
+      - which fund is better
+      - which one is better
     response: >-
       I can share facts about individual schemes, but I can't compare or
       rank them. Want me to look up a specific detail for one of the HDFC schemes?
@@ -98,8 +101,15 @@ intents:
       - how much would it become
       - would have become
       - would it become
+      - become in
       - maturity amount
       - maturity value
+      - in 5 years
+      - in 6 years
+      - in 10 years
+      - for 5 years
+      - for 6 years
+      - for 10 years
     response: >-
       I can help with factual scheme details, but I can't calculate or predict
       investment returns. For performance information, please refer to the

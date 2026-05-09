@@ -134,6 +134,21 @@ class Orchestrator:
             ctx.record(query or "", None, None, None, "pii")
             return self._make_result(ans, request_id, "pii", t0)
 
+        # --- 2b. Fast regex safety net (catches obvious unsafe queries before LLM) ---
+        fast_refusal = _fast_safety_check(query or "")
+        if fast_refusal:
+            ref = compose_refusal(query or "", fast_refusal)
+            ans = build_refusal(
+                body=ref.body,
+                citation_url=ref.educational_url,
+                intent_id=ref.intent_id,
+                scheme_id=ref.scheme_id,
+                scheme_name=_scheme_name_for(ref.scheme_id),
+            )
+            ctx.record(query or "", ref.scheme_id, _scheme_name_for(ref.scheme_id), None, fast_refusal)
+            return self._make_result(ans, request_id, fast_refusal, t0,
+                                     scheme_id=ref.scheme_id)
+
         # --- 3. Semantic Query Understanding ---
         sem_intent = parse_query_semantically(
             query or "", 
@@ -165,15 +180,7 @@ class Orchestrator:
             return self._make_result(ans, request_id, "conversational", t0,
                                      scheme_id=ctx.last_scheme_id)
 
-        # 4. Clarification Gate
-        if sem_intent.needs_clarification or sem_intent.confidence < 0.6 or sem_intent.capability == "out_of_domain":
-            ans = build_dont_know(
-                scheme_id=ctx.last_scheme_id,
-                scheme_name=ctx.last_scheme_name,
-            )
-            ctx.record(query or "", None, None, None, "dont_know")
-            return self._make_result(ans, request_id, "dont_know", t0)
-
+        # --- 3b. Compliance Router (runs BEFORE clarification gate — safety first) ---
         if sem_intent.is_performance_query or sem_intent.is_comparison or sem_intent.is_advisory:
             if sem_intent.is_performance_query:
                 ref_intent_id = "prediction"
@@ -193,6 +200,15 @@ class Orchestrator:
             ctx.record(query or "", ref.scheme_id, _scheme_name_for(ref.scheme_id), None, ref_intent_id)
             return self._make_result(ans, request_id, ref_intent_id, t0,
                                      scheme_id=ref.scheme_id)
+
+        # --- 4. Clarification Gate (only reached for non-compliance queries) ---
+        if sem_intent.needs_clarification or sem_intent.confidence < 0.6 or sem_intent.capability == "out_of_domain":
+            ans = build_dont_know(
+                scheme_id=ctx.last_scheme_id,
+                scheme_name=ctx.last_scheme_name,
+            )
+            ctx.record(query or "", None, None, None, "dont_know")
+            return self._make_result(ans, request_id, "dont_know", t0)
 
         # --- 4. Query expansion: resolve scheme from query, parser, or memory ---
         sm = resolve(query or "")
@@ -250,16 +266,16 @@ class Orchestrator:
 
         # --- 7. Confidence & Semantic Validation gate ---
         # Field-level validation: Ensure the retrieved chunk section matches the capability/metric.
+        SECTION_MAP = {
+            "fund_costs": ["Exit Load and Tax", "Fund Details"],
+            "fund_risk": ["Riskometer", "Fund Details", "About"],
+            "minimum_investment": ["Minimum Investments", "Fund Details"],
+            "fund_management": ["Fund Manager", "Fund Details", "About"],
+            "portfolio": ["Portfolio", "Holdings", "Fund Details"],
+        }
         validation_failed = False
-        if sem_intent.capability == "fund_costs" and top.chunk.section not in ["Exit Load and Tax", "Fund Details"]:
-            validation_failed = True
-        elif sem_intent.capability == "fund_risk" and top.chunk.section not in ["Riskometer"]:
-            validation_failed = True
-        elif sem_intent.capability == "minimum_investment" and top.chunk.section not in ["Minimum Investments", "Fund Details"]:
-            validation_failed = True
-        elif sem_intent.capability == "fund_management" and top.chunk.section not in ["Fund Manager", "Fund Details"]:
-            validation_failed = True
-        elif sem_intent.capability == "portfolio" and top.chunk.section not in ["Portfolio", "Holdings"]:
+        allowed = SECTION_MAP.get(sem_intent.capability)
+        if allowed and top.chunk.section not in allowed:
             validation_failed = True
         
         if top.score < DEFAULT_CONF_THRESHOLD and margin < DEFAULT_MARGIN_THRESHOLD:
@@ -340,3 +356,22 @@ def _to_dict(hits: List[RetrievedChunk]) -> List[Dict[str, Any]]:
 
 def hash_query_for_logs(query: str) -> str:
     return "sha256:" + hashlib.sha256((query or "").encode("utf-8")).hexdigest()[:16]
+
+
+def _fast_safety_check(query: str) -> Optional[str]:
+    """Deterministic regex safety net — catches obvious performance, advisory,
+    and comparison queries BEFORE the LLM router runs.
+    
+    Returns the refusal intent_id ('prediction', 'advisory', 'comparison') or None.
+    Uses patterns from refusal_intents.yaml for consistency.
+    """
+    from ..config_loader import load_refusals
+    cfg = load_refusals()
+    q = query.lower().strip()
+    if not q:
+        return None
+    for intent_cfg in cfg.intents:
+        for pattern in intent_cfg.patterns:
+            if pattern.lower() in q:
+                return intent_cfg.id
+    return None
