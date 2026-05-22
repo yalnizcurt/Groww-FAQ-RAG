@@ -1,75 +1,143 @@
-# Mutual Fund FAQ Assistant
+# Groww FinQuery — HDFC Mutual Fund FAQ Assistant
 
-A **facts-only**, source-cited Retrieval-Augmented Generation (RAG) assistant for
-HDFC mutual fund schemes, using Groww product pages as the closed corpus.
+> **Facts-only. No investment advice. No PII stored.**
 
-> **Disclaimer:** Facts-only. No investment advice.
+Groww FinQuery is a conversational AI assistant that answers factual questions about HDFC mutual fund schemes using only verified, source-cited data scraped from Groww product pages. It is built on a Retrieval-Augmented Generation (RAG) architecture with a strict compliance layer that prevents advisory, comparative, or speculative responses.
 
-## Architecture
+---
 
-This project is a phase-wise implementation of the architecture in
-[`docs/architecture.md`](./docs/architecture.md):
+## What it does
 
+Users ask natural-language questions like *"What is the exit load of HDFC Mid Cap Fund?"* and receive a concise, source-cited factual answer in seconds. The assistant:
+
+- Answers questions about **expense ratios, exit loads, risk levels, lock-in periods, SIP minimums, benchmarks, and fund managers**
+- Refuses to give **investment advice, performance predictions, or fund comparisons**
+- **Redacts PII** (Aadhaar, PAN, phone numbers, OTPs) before any processing
+- Always cites its source URL and shows the data freshness date
+- Surfaces follow-up suggestions after each answer
+
+---
+
+## Covered Schemes (Closed Corpus)
+
+The assistant only answers questions about these 5 HDFC schemes on Groww. Any question outside this corpus returns *"I don't have a verified answer."*
+
+| # | Scheme | Category |
+|---|--------|----------|
+| 1 | HDFC Mid Cap Fund — Direct Growth | Mid Cap |
+| 2 | HDFC Equity Fund — Direct Growth | Flexi Cap |
+| 3 | HDFC Focused Fund — Direct Growth | Focused |
+| 4 | HDFC ELSS Tax Saver — Direct Plan Growth | ELSS |
+| 5 | HDFC Large Cap Fund — Direct Growth | Large Cap |
+
+---
+
+## How It Works
+
+```mermaid
+flowchart TD
+    subgraph SCHEDULED["⏰ Offline Ingestion — Daily 10 AM IST (GitHub Actions)"]
+        direction LR
+        A1["🌐 Fetch\nhttpx → Playwright fallback"] --> A2["📄 Extract\ntrafilatura + CSS selectors"]
+        A2 --> A3["🧹 Clean\nNFKC · currency normalize · drop bios"]
+        A3 --> A4["✂️ Chunk\nSection-aware · atomic facts"]
+        A4 --> A5["🔢 Embed\nBAAI/bge-small-en-v1.5 384-dim"]
+        A5 --> A6["🗄️ Index\nChromaDB + BM25 + manifest.json"]
+    end
+
+    subgraph QUERY["💬 Online Query — Per Request"]
+        direction TB
+        B0["User submits question\nReact UI"] --> B1["🔒 PII Guard\nDetect PAN · Aadhaar · phone · OTP"]
+        B1 -- PII found --> BPII["🚫 Privacy block\nno URL returned"]
+        B1 -- clean --> B2["⚡ Fast Safety Net\nRegex patterns for advisory / prediction / comparison"]
+        B2 -- blocked --> BREF["🚫 Polite refusal\n+ 1 educational URL"]
+        B2 -- pass --> B3["🧠 Semantic Router\nLLM intent classification\ngreeting · factual · advisory · comparison · prediction"]
+        B3 -- non-factual --> BREF2["🚫 Compliance refusal"]
+        B3 -- factual --> B4["🔍 Scheme Resolver\nMap query → scheme ID"]
+        B4 --> B5["🔎 Hybrid Retrieval\nDense vector + BM25 RRF fusion\nSection-hint boost"]
+        B5 --> B6["📊 Cross-Encoder Rerank\nTop-3 → confidence score"]
+        B6 -- low confidence --> BDONTKNOW["❓ Don't know\ngraceful fallback"]
+        B6 -- high confidence --> B7["✍️ Generate Answer\nGroq LLM or extractive\n≤ 3 sentences"]
+        B7 --> B8["✅ Post-Processor\nCompliance check · cite 1 URL · footer date"]
+        B8 --> B9["📝 Log to MongoDB\nHashed query · intent · latency · confidence"]
+        B9 --> B10["📤 Return to UI\nanswer · citation · intent · suggestions"]
+    end
+
+    SCHEDULED -->|"Index on disk\nreloaded by orchestrator"| QUERY
 ```
-  GitHub Actions cron (10:00 AM IST)
-          │
-          ▼
-  ┌── INGESTION (offline) ──────────────────────────┐
-  │ 1.1 fetch (httpx → playwright fallback)             │
-  │ 1.2 extract  (trafilatura + targeted selectors)     │
-  │ 1.3 clean    (NFKC, currency, drop FAQs / bios)     │
-  │ 1.4 chunk    (section-aware, atomic numeric facts)  │
-  │ 1.5 embed    (BAAI/bge-small-en-v1.5, 384-dim)      │
-  │ 1.6 index    (ChromaDB + rank_bm25 + manifest.json) │
-  │ 1.7 refresh  (drift detection + freeze on multi-URL)│
-  └────────────────────────────────────────────────┘
-          │
-          ▼
-  ┌── RETRIEVAL (online) ───────────────────────────┐
-  │ normalize → scheme-resolve → hybrid (dense + BM25)  │
-  │ → RRF fuse → section-hint boost → cross-encoder    │
-  │ rerank → confidence gate                            │
-  └────────────────────────────────────────────────┘
-          │
-          ▼
-  ┌── ORCHESTRATOR (online) ───────────────────────┐
-  │ PII guard (PAN/Aadhaar/email/phone/OTP) → 0 URLs   │
-  │ Intent classify (advisory/comparison/prediction)   │
-  │   → polite refusal + 1 educational URL             │
-  │ Factual: extractive OR Groq generator              │
-  │   → post-processor: ≤3 sentences,                  │
-  │     exactly 1 whitelisted URL, footer date         │
-  └────────────────────────────────────────────────┘
-          │
-          ▼
-        FastAPI /api/ask → React UI
-```
 
-## Selected AMC and schemes (Phase 0 — closed corpus)
+### Key Design Decisions
 
-The corpus is **strictly limited** to these 5 Groww product pages. The Phase 5
-compliance gate fails the build if any answer cites a URL outside this list.
+| Decision | Rationale |
+|----------|-----------|
+| **Closed corpus (5 URLs only)** | Eliminates hallucination risk; answers are always traceable to a specific Groww page |
+| **Dual retrieval: dense + BM25** | Dense embeddings handle paraphrase; BM25 catches exact fund-name / numerical matches. RRF fusion avoids score normalization issues |
+| **Cross-encoder reranker** | Improves precision over bi-encoder alone; confidence margin gates graceful fallbacks |
+| **LLM for intent routing, extractive for facts** | Groq LLM writes warmer answers; but extraction is the fallback, keeping the system functional without an API key |
+| **PII guard runs first** | Before any LLM call, preventing accidental logging or echoing of sensitive data |
+| **Post-processor compliance check** | Enforces ≤ 3 sentences, exactly 1 whitelisted URL, no banned advisory tokens — programmatically, not just by prompt |
+| **Daily refresh via GitHub Actions** | Keeps data fresh without manual intervention; drift detection freezes the index if ≥ 2 schemes change simultaneously |
+| **MongoDB audit log** | Stores hashed queries (never raw) + intent + latency + confidence for monitoring without storing PII |
 
-| # | Scheme | Category | URL |
-|---|--------|----------|-----|
-| 1 | HDFC Mid Cap Fund — Direct Growth | Mid Cap | https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth |
-| 2 | HDFC Equity Fund — Direct Growth | Flexi Cap | https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth |
-| 3 | HDFC Focused Fund — Direct Growth | Focused | https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth |
-| 4 | HDFC ELSS Tax Saver — Direct Plan Growth | ELSS | https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth |
-| 5 | HDFC Large Cap Fund — Direct Growth | Large Cap | https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth |
+---
 
-## Setup (local)
+## Compliance Gates
+
+The system has **three independent layers** that prevent policy violations:
+
+1. **PII Guard** — Regex detects PAN, Aadhaar, phone, OTP patterns. Fires before any LLM call.
+2. **Fast Regex Safety Net** — Pattern-matches known advisory / prediction / comparison phrases before the LLM router runs.
+3. **Post-Processor Check** — After generation, validates sentence count, URL whitelist, and absence of banned tokens (`recommend`, `better than`, `will grow`, etc.).
+
+The CI compliance gate (`test_eval`) enforces:
+- Factual answer rate ≥ 70%
+- Refusal / PII / don't-know rates = 100%
+- All cited URLs in `config/sources.yaml`
+- Factual answers ≤ 3 sentences
+- Zero advisory tokens in any answer
+
+---
+
+## API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/health` | Liveness check + index status |
+| `GET` | `/api/meta` | AMC, schemes, chunk count, last refresh timestamp |
+| `GET` | `/api/examples` | Three example factual questions |
+| `POST` | `/api/ask` | `{ "query": "...", "session_id": "..." }` → answer + citation + intent |
+| `POST` | `/api/reingest` | Trigger a corpus refresh in the background |
+| `GET` | `/api/refresh-status` | Last refresh log entry |
+
+**`/api/ask` response fields:**
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `answer` | string | Full formatted answer with footer |
+| `body` | string | Answer body only (no footer) |
+| `citation_url` | string | Source Groww URL |
+| `intent` | string | `factual` · `advisory` · `comparison` · `prediction` · `pii` · `dont_know` · `greeting` |
+| `confidence` | float | Cross-encoder top score |
+| `margin` | float | Score gap between rank-1 and rank-2 |
+| `suggestions` | string[] | Follow-up question chips |
+| `latency_ms` | int | End-to-end latency |
+
+---
+
+## Local Setup
 
 ### Backend
 
 ```bash
 cd backend
 python -m venv .venv && source .venv/bin/activate
-# CPU-only torch keeps the install small
+
+# CPU-only PyTorch keeps the install under 1 GB
 pip install --no-cache-dir torch==2.5.1 --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
 python -m playwright install chromium
-cp .env.example .env  # add GROQ_API_KEY here if you want LLM-rewritten answers
+
+cp .env.example .env   # add GROQ_API_KEY for LLM-generated answers (optional)
 ```
 
 Build the index for the first time:
@@ -78,7 +146,7 @@ Build the index for the first time:
 python -c "from mf_faq.ingestion.pipeline import refresh; print(refresh(force=True).to_dict())"
 ```
 
-Run the API:
+Run the API server:
 
 ```bash
 uvicorn server:app --host 0.0.0.0 --port 8001
@@ -89,68 +157,56 @@ uvicorn server:app --host 0.0.0.0 --port 8001
 ```bash
 cd frontend
 yarn install
-yarn start  # http://localhost:3000
+yarn start   # http://localhost:3000
 ```
 
-## API
+---
 
-| Method | Path | Notes |
-|---|---|---|
-| GET | `/api/health` | Liveness + index status |
-| GET | `/api/meta` | AMC, schemes, n_chunks, last refresh, embedder |
-| GET | `/api/examples` | Three example factual questions |
-| POST | `/api/ask` | `{ "query": "...", "use_groq": null }` → facts-only answer |
-| POST | `/api/reingest` | Trigger pipeline refresh in background |
-| GET | `/api/refresh-status` | Last refresh log entry |
+## Automated Corpus Refresh
 
-## Tests
+The index is rebuilt daily at **10:00 AM IST (04:30 UTC)** via GitHub Actions (`.github/workflows/ingest.yml`).
 
-```bash
-cd backend
-python -m tests.test_core   # POC: ingestion + retrieval + orchestrator
-python -m tests.test_eval   # Phase 5 compliance gate (factual + refusal + PII)
-```
+**Manual trigger:** Actions → *Refresh Mutual Fund FAQ Corpus* → Run workflow
 
-The `test_eval` suite is the **CI compliance gate**. It enforces:
-
-- factual rate ≥ 70%,
-- refusal/PII/don't-know rates = 100%,
-- every cited URL is in `config/sources.yaml`,
-- factual answers have ≤ 3 sentences,
-- no banned advisory tokens ("recommend", "better than", …) in any answer.
-
-## Scheduler
-
-The `.github/workflows/ingest.yml` workflow refreshes the corpus daily at
-**10:00 AM IST (04:30 UTC)** and uploads `data/index/*` as a build artifact.
-Manual runs: **Actions → Refresh Mutual Fund FAQ Corpus → Run workflow**.
-
-Local manual trigger:
-
+**Local trigger:**
 ```bash
 curl -X POST http://localhost:8001/api/reingest
 ```
 
-## Known limitations
+**Drift detection:** If ≥ 2 schemes' content hashes change in the same refresh window, the pipeline freezes the existing index rather than overwriting it — protecting against Groww page restructuring or scraping anomalies. Use `force=True` to override.
 
-- The corpus is **only** the 5 Groww product pages. Statement-download and
-  capital-gains-report walkthroughs sit on AMC help pages that are *not* in
-  the corpus, so the assistant returns *"I don't have a verified answer"*.
-- Performance / return computations are deliberately refused (the assistant
-  redirects to the official scheme page).
-- The API key used for generation does **not** support OpenAI's `/v1/embeddings`
-  endpoint, so embeddings run **locally** with `BAAI/bge-small-en-v1.5`.
-- The Groq path is opt-in; without `GROQ_API_KEY` the system answers extractively
-  (still source-cited and policy-compliant).
-- Riskometer extraction relies on the Groww page surfacing a "X Risk" textual
-  label — if Groww switches to image-only labels in the future, that section
-  will degrade until the extractor is updated.
+---
 
 ## Deployment
 
-1. **Backend (Railway / Fly / any container host)** — set `MONGO_URL`,
-   `DB_NAME`, `CORS_ORIGINS`, optional `GROQ_API_KEY`.
-2. **Frontend (Vercel / Netlify)** — set `REACT_APP_BACKEND_URL`.
-3. **GitHub Actions** — `.github/workflows/ingest.yml` refreshes the index on
-   schedule. To persist the rebuilt index across runs, add a step that pushes
-   `backend/data/index/` to a release branch or to object storage.
+| Layer | Recommended Hosts | Required Environment Variables |
+|-------|------------------|-------------------------------|
+| **Backend** | Railway · Fly.io · any Docker host | `MONGO_URL`, `DB_NAME`, `CORS_ORIGINS`, `GROQ_API_KEY` (optional) |
+| **Frontend** | Vercel · Netlify | `REACT_APP_BACKEND_URL` |
+| **Index persistence** | Add a GitHub Actions step to push `backend/data/index/` to a release branch or object storage after each refresh | — |
+
+A `Dockerfile` is provided at the project root for containerised deployment.
+
+---
+
+## Known Limitations
+
+| Limitation | Impact |
+|------------|--------|
+| Corpus limited to 5 Groww product pages | Statement downloads, capital gains walkthroughs, and other help-page content returns *"I don't have a verified answer"* |
+| Performance / return computations refused | Redirects to the official scheme page instead |
+| Embeddings run locally (`BAAI/bge-small-en-v1.5`) | The Groq API key does not support `/v1/embeddings`; local inference adds ~100–300 ms on cold start |
+| Groq LLM is opt-in | Without `GROQ_API_KEY` the system answers extractively — still source-cited and policy-compliant |
+| Riskometer extraction depends on Groww's text label | If Groww switches to image-only risk labels, riskometer answers will degrade until the extractor is updated |
+
+---
+
+## Running Tests
+
+```bash
+cd backend
+python -m tests.test_core    # Integration: ingestion + retrieval + orchestrator
+python -m tests.test_eval    # CI compliance gate: factual · refusal · PII
+```
+
+The `test_eval` suite is the **CI compliance gate** and must pass before any deployment.
