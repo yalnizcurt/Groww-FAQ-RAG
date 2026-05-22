@@ -36,6 +36,125 @@ function Disclaimer() {
   );
 }
 
+/* ─────────────────── Settings Panel ─────────────────── */
+
+function SettingsIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  );
+}
+
+function SettingsPanel({ reingestState, onReingest, meta }) {
+  const [open, setOpen] = useState(false);
+  const panelRef = useRef(null);
+
+  // Close panel on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  return (
+    <div className="settings-wrapper" ref={panelRef}>
+      <button
+        className={`settings-btn ${open ? "settings-btn-active" : ""}`}
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Settings"
+        data-testid="settings-btn"
+        title="Settings & Maintenance"
+      >
+        <SettingsIcon />
+      </button>
+
+      {open && (
+        <div className="settings-dropdown" data-testid="settings-panel">
+          <div className="settings-header">
+            <span className="settings-title">Settings & Maintenance</span>
+          </div>
+
+          {/* Corpus Stats */}
+          {meta && (
+            <div className="settings-section">
+              <div className="settings-section-label">Corpus Info</div>
+              <div className="settings-stat-row">
+                <span className="settings-stat-key">AMC</span>
+                <span className="settings-stat-val">{meta.amc}</span>
+              </div>
+              <div className="settings-stat-row">
+                <span className="settings-stat-key">Schemes</span>
+                <span className="settings-stat-val">{meta.schemes?.length ?? 0}</span>
+              </div>
+              <div className="settings-stat-row">
+                <span className="settings-stat-key">Indexed chunks</span>
+                <span className="settings-stat-val">{meta.n_chunks ?? 0}</span>
+              </div>
+              {meta.last_refresh_at && (
+                <div className="settings-stat-row">
+                  <span className="settings-stat-key">Last refreshed</span>
+                  <span className="settings-stat-val mono">{formatDate(meta.last_refresh_at)}</span>
+                </div>
+              )}
+              {meta.last_refresh_outcome && (
+                <div className="settings-stat-row">
+                  <span className="settings-stat-key">Last outcome</span>
+                  <span className={`outcome outcome-${meta.last_refresh_outcome}`}>
+                    {meta.last_refresh_outcome}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Ingestion */}
+          <div className="settings-section">
+            <div className="settings-section-label">Data Ingestion</div>
+            <button
+              className="reingest-btn settings-reingest-btn"
+              onClick={() => { onReingest(); }}
+              disabled={reingestState.running}
+              data-testid="reingest-btn"
+            >
+              {reingestState.running ? (
+                <><span className="spinner" /> Re-ingesting…</>
+              ) : (
+                <>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" /></svg>
+                  Re-ingest now
+                </>
+              )}
+            </button>
+
+            {reingestState.running && (
+              <div className="settings-ingest-progress">
+                <div className="settings-progress-bar">
+                  <div className="settings-progress-fill" />
+                </div>
+                <span className="settings-progress-label">Fetching latest data…</span>
+              </div>
+            )}
+
+            {reingestState.last && (
+              <div className="reingest-status settings-reingest-status" data-testid="reingest-status">
+                <div>Last run: <span className="mono">{formatDate(reingestState.last.finished_at)}</span></div>
+                <div>Outcome: <span className={`outcome outcome-${reingestState.last.outcome}`}>{reingestState.last.outcome}</span></div>
+                <div>Chunks: <span className="mono">{reingestState.last.n_chunks}</span></div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─────────────────── Sidebar ─────────────────── */
 
 function MetaPanel({ meta }) {
@@ -166,7 +285,7 @@ function MessageBubble({ msg, onSuggestionClick }) {
               rel="noopener nofollow noreferrer"
             >
               {prettyUrl(citation_url)}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /><polyline points="15 3 21 3 21 9" /><line x1="10" y1="14" x2="21" y2="3" /></svg>
             </a>
           </div>
         )}
@@ -258,8 +377,16 @@ function App() {
   const [error, setError] = useState(null);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const pollRef = useRef(null);
 
   useEffect(() => { loadMeta(); loadExamples(); }, []);
+
+  // Cleanup polling on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -329,29 +456,51 @@ function App() {
 
   async function startReingest() {
     if (reingestState.running) return;
-    setReingestState({ running: true, last: reingestState.last });
+
+    // Clear any old poll
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+
+    setReingestState((s) => ({ ...s, running: true }));
+
     try {
       await axios.post(`${API}/reingest?force=true`);
-      let elapsed = 0;
-      const poll = setInterval(async () => {
-        elapsed += 4;
-        try {
-          const { data } = await axios.get(`${API}/refresh-status`);
-          if (data) {
-            setReingestState({ running: false, last: data });
-            clearInterval(poll);
-            await loadMeta();
-          }
-        } catch (_) {}
-        if (elapsed > 180) {
-          clearInterval(poll);
-          setReingestState((s) => ({ ...s, running: false }));
-        }
-      }, 4000);
     } catch (e) {
-      setReingestState({ running: false, last: reingestState.last });
+      setReingestState((s) => ({ ...s, running: false }));
       setError("Re-ingest could not be started.");
+      return;
     }
+
+    // Poll /refresh-status until the backend reports the job is done.
+    // The endpoint returns null while no result exists yet (job still running),
+    // and a RefreshResponse object once the job completes.
+    let elapsed = 0;
+    const MAX_WAIT_MS = 180_000; // 3 minutes
+    const POLL_INTERVAL_MS = 3_000;
+
+    pollRef.current = setInterval(async () => {
+      elapsed += POLL_INTERVAL_MS;
+      try {
+        const { data } = await axios.get(`${API}/refresh-status`);
+        // data is null while job is in-flight; non-null means job finished
+        if (data !== null && data !== undefined) {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          setReingestState({ running: false, last: data });
+          await loadMeta(); // Refresh sidebar corpus info
+        }
+      } catch (_) {
+        // Network hiccup — keep polling
+      }
+      if (elapsed >= MAX_WAIT_MS) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+        setReingestState((s) => ({ ...s, running: false }));
+        setError("Re-ingest timed out. Check backend logs.");
+      }
+    }, POLL_INTERVAL_MS);
   }
 
   function onKeyDown(e) {
@@ -367,7 +516,14 @@ function App() {
     <div className="App">
       <header className="app-header">
         <Logo />
-        <Disclaimer />
+        <div className="header-right">
+          <Disclaimer />
+          <SettingsPanel
+            reingestState={reingestState}
+            onReingest={startReingest}
+            meta={meta}
+          />
+        </div>
       </header>
 
       <main className="app-main">
@@ -379,31 +535,6 @@ function App() {
               <SchemeChips schemes={meta.schemes} onPick={send} />
             </div>
           )}
-          <div className="sidebar-block">
-            <div className="sidebar-title">Maintenance</div>
-            <button
-              className="reingest-btn"
-              onClick={startReingest}
-              disabled={reingestState.running}
-              data-testid="reingest-btn"
-            >
-              {reingestState.running ? (
-                <><span className="spinner" /> Re-ingesting…</>
-              ) : (
-                <>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-                  Re-ingest now
-                </>
-              )}
-            </button>
-            {reingestState.last && (
-              <div className="reingest-status" data-testid="reingest-status">
-                <div>Last run: <span className="mono">{formatDate(reingestState.last.finished_at)}</span></div>
-                <div>Outcome: <span className={`outcome outcome-${reingestState.last.outcome}`}>{reingestState.last.outcome}</span></div>
-                <div>Chunks: <span className="mono">{reingestState.last.n_chunks}</span></div>
-              </div>
-            )}
-          </div>
         </aside>
 
         <section className="chat-area">
@@ -444,7 +575,7 @@ function App() {
                   <span className="spinner" />
                 ) : (
                   <>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
                   </>
                 )}
               </button>
@@ -457,7 +588,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <span>RAG over closed corpus · 5 official Groww scheme pages · ChromaDB + BM25 + cross-encoder rerank</span>
+        <span>At moment this chatbot covers five HDFC schemes only</span>
       </footer>
     </div>
   );
