@@ -69,7 +69,7 @@ function SettingsPanel({ reingestState, onReingest, meta }) {
         onClick={() => setOpen((v) => !v)}
         aria-label="Settings"
         data-testid="settings-btn"
-        title="Settings & Maintenance"
+        title="Maintenance"
       >
         <SettingsIcon />
       </button>
@@ -77,7 +77,7 @@ function SettingsPanel({ reingestState, onReingest, meta }) {
       {open && (
         <div className="settings-dropdown" data-testid="settings-panel">
           <div className="settings-header">
-            <span className="settings-title">Settings & Maintenance</span>
+            <span className="settings-title">Maintenance</span>
           </div>
 
           {/* Corpus Stats */}
@@ -587,7 +587,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <span>At moment this chatbot covers five HDFC schemes only</span>
+        <span>At moment this chatbot covers five HDFC schemes only · Click on settings icon and click re-ingest if data is not updated.</span>
       </footer>
     </div>
   );
