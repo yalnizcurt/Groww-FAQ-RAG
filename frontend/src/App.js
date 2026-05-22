@@ -20,8 +20,8 @@ function Logo() {
         </svg>
       </div>
       <div className="brand-text">
-        <div className="brand-title">Groww MF Assistant</div>
-        <div className="brand-sub">HDFC Mutual Fund · Facts only</div>
+        <div className="brand-title">Groww FinQuery</div>
+        <div className="brand-sub">HDFC Mutual Fund RAG chatbot</div>
       </div>
     </div>
   );
@@ -213,7 +213,7 @@ function WelcomeScreen({ examples, onPick }) {
           <circle cx="3" cy="17" r="1.2" fill="currentColor" />
         </svg>
       </div>
-      <div className="welcome-eyebrow">Groww Mutual Fund Facts</div>
+      <div className="welcome-eyebrow">Groww FinQuery</div>
       <h1 className="welcome-title">What would you like to know?</h1>
       <p className="welcome-sub">
         I can look up factual details like expense ratio, exit load, risk level, lock-in,
@@ -528,7 +528,6 @@ function App() {
 
       <main className="app-main">
         <aside className="sidebar">
-          <MetaPanel meta={meta} />
           {meta?.schemes?.length > 0 && (
             <div className="sidebar-block">
               <div className="sidebar-title">Covered schemes</div>
