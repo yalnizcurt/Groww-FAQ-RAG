@@ -22,7 +22,7 @@ function Logo() {
       </div>
       <div className="brand-text">
         <div className="brand-title">Groww FinQuery</div>
-        <div className="brand-sub">HDFC Mutual Fund RAG chatbot</div>
+        <div className="brand-sub">Mutual Fund RAG chatbot</div>
       </div>
     </div>
   );
@@ -32,7 +32,7 @@ function Disclaimer() {
   return (
     <div className="disclaimer-banner" data-testid="disclaimer-banner">
       <span className="disclaimer-dot" />
-      <span>Facts-only · No investment advice</span>
+      <span>RAG Powered · Financial Search</span>
     </div>
   );
 }
@@ -173,7 +173,7 @@ function WelcomeScreen({ examples, onPick }) {
       <h1 className="welcome-title">What would you like to know?</h1>
       <p className="welcome-sub">
         I can look up factual details like expense ratio, exit load, risk level, lock-in,
-        benchmark, or SIP minimum for HDFC mutual fund schemes.
+        benchmark, or SIP minimum for mutual fund schemes.
       </p>
       <div className="quick-actions">
         {["Expense ratio", "Exit load", "Risk level", "Minimum SIP", "Benchmark"].map((label) => (
@@ -536,8 +536,18 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <span>At moment this chatbot covers five HDFC schemes only · Click on settings icon and click re-ingest if data is not updated.</span>
-      </footer>
+        <span>
+          At the moment, this chatbot covers only five HDFC schemes ·
+          If the data is not updated, click the Settings icon and select Re-ingest ·
+          Built by&nbsp;
+          <a
+            href="https://www.linkedin.com/in/srikarvuyyuru/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Srikara Krishna Vuyyuru
+          </a>
+        </span>      </footer>
     </div>
   );
 }
