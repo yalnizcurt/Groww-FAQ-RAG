@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import "@/App.css";
 import axios from "axios";
+import Sidebar from "@/Sidebar";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
@@ -155,52 +156,7 @@ function SettingsPanel({ reingestState, onReingest, meta }) {
   );
 }
 
-/* ─────────────────── Sidebar ─────────────────── */
-
-function MetaPanel({ meta }) {
-  if (!meta) return null;
-  return (
-    <div className="meta-panel" data-testid="meta-panel">
-      <div className="meta-row">
-        <span className="meta-label">AMC</span>
-        <span className="meta-value">{meta.amc}</span>
-      </div>
-      <div className="meta-row">
-        <span className="meta-label">Schemes</span>
-        <span className="meta-value">{meta.schemes?.length ?? 0}</span>
-      </div>
-      <div className="meta-row">
-        <span className="meta-label">Indexed chunks</span>
-        <span className="meta-value">{meta.n_chunks ?? 0}</span>
-      </div>
-      {meta.last_refresh_at && (
-        <div className="meta-row">
-          <span className="meta-label">Refreshed</span>
-          <span className="meta-value mono">{formatDate(meta.last_refresh_at)}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function SchemeChips({ schemes, onPick }) {
-  if (!schemes?.length) return null;
-  return (
-    <div className="scheme-chips" data-testid="scheme-chips">
-      {schemes.map((s) => (
-        <button
-          key={s.id}
-          className="scheme-chip"
-          onClick={() => onPick(`What is the expense ratio of ${s.name}?`)}
-          data-testid={`scheme-chip-${s.id}`}
-        >
-          <span className="scheme-chip-cat">{s.category}</span>
-          <span className="scheme-chip-name">{shortName(s.name)}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
+/* ─────────────────── Sidebar (replaced by Sidebar.js) ─────────────────── */
 
 /* ─────────────────── Welcome screen ─────────────────── */
 
@@ -527,14 +483,7 @@ function App() {
       </header>
 
       <main className="app-main">
-        <aside className="sidebar">
-          {meta?.schemes?.length > 0 && (
-            <div className="sidebar-block">
-              <div className="sidebar-title">Covered schemes</div>
-              <SchemeChips schemes={meta.schemes} onPick={send} />
-            </div>
-          )}
-        </aside>
+        <Sidebar onPick={send} />
 
         <section className="chat-area">
           <div className="chat-scroll" ref={scrollRef}>
