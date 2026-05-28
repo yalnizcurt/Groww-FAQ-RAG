@@ -39,7 +39,8 @@ BOILERPLATE_SUBSTRINGS = (
 
 # Volatile fields stripped before computing the stable hash.
 VOLATILE_PATTERNS = (
-    re.compile(r"NAV\s*[:\-]?\s*\u20b9?\s*[0-9.,]+", re.IGNORECASE),
+    re.compile(r"NAV[^\u20b9]*\u20b9\s*[0-9.,]+", re.IGNORECASE),
+    re.compile(r"Fund size \(AUM\)[^\u20b9]*\u20b9\s*[0-9.,]+\s*Cr", re.IGNORECASE),
     re.compile(r"as on [0-9A-Za-z, ]+", re.IGNORECASE),
     re.compile(r"updated on [0-9A-Za-z, ]+", re.IGNORECASE),
     re.compile(r"\b(today|yesterday)\b", re.IGNORECASE),

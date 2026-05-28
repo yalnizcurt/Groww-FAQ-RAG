@@ -101,3 +101,19 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+## backend:
+##   - task: "Fix data ingestion drifting"
+##     implemented: true
+##     working: true
+##     file: "backend/mf_faq/ingestion/cleaner.py"
+##     stuck_count: 0
+##     priority: "high"
+##     needs_retesting: true
+##     status_history:
+##         -working: false
+##         -agent: "user"
+##         -comment: "the data ingestion ws not happening"
+##         -working: true
+##         -agent: "main"
+##         -comment: "Updated VOLATILE_PATTERNS in cleaner.py to properly strip dynamic NAV dates and AUM values which caused the stable_content_hash to drift daily."
