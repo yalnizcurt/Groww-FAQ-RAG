@@ -46,6 +46,13 @@ intents:
   - id: prediction
     description: User asks about future/past performance, returns, or investment calculations
     patterns:
+      - give 20%
+      - give 10%
+      - give 15%
+      - give 25%
+      - give 30%
+      - "% returns"
+      - "% return"
       - will it grow
       - will it give
       - will give

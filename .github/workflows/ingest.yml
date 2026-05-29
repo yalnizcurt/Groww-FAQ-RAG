@@ -80,6 +80,8 @@ jobs:
         working-directory: backend
         env:
           HF_HOME: ${{ github.workspace }}/.hf-cache
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: "llama-3.3-70b-versatile"
         run: |
           python -m tests.test_core
 
@@ -87,6 +89,8 @@ jobs:
         working-directory: backend
         env:
           HF_HOME: ${{ github.workspace }}/.hf-cache
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: "llama-3.3-70b-versatile"
         run: |
           python -m tests.test_eval || (echo "::error::eval/compliance gate failed" && exit 1)
 
