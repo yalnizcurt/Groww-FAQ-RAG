@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-05-30T07:26:09.012849+00:00",
+  "built_at": "2026-05-31T07:57:25.762971+00:00",
   "embedder": {
     "model": "BAAI/bge-small-en-v1.5",
     "dim": 384
@@ -14,7 +14,7 @@
   },
   "source_hashes": {
     "hdfc_mid_cap": "sha256:26b7ff240ffec6a22f265a717dc91c6dc645d6fe8a336e18c51eca2d9b039b17",
-    "hdfc_equity": "sha256:5ae11ab1edb308c9bb2ed3148c12a1f3b17933979e4718fff71fda0fd51a911c",
+    "hdfc_equity": "sha256:c23840948af6fcca20580a8310a58db4c629f21f55b05250ba22a53b3798409b",
     "hdfc_focused": "sha256:6f8cf160fab38224558078c9f2558f3a97adc07e5036711c322ba4f0be6f5dab",
     "hdfc_elss": "sha256:99833537504ca8b2bb9608d6df4fe366c24b4a2c400b9ceda375bf579c439958",
     "hdfc_large_cap": "sha256:e05c7ec1b2b57d968f002ebcf73d79a9b56e4e405ff0880b7e8083dd0fe9abfa"
