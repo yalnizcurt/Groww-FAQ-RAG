@@ -1,9 +1,9 @@
 {
   "scheme_id": "hdfc_mid_cap",
   "source_url": "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
-  "fetched_at": "2026-05-31T07:57:18.724905+00:00",
-  "cleaned_at": "2026-05-31T07:57:18.958904+00:00",
-  "last_updated": "2026-05-31",
+  "fetched_at": "2026-06-01T09:40:49.667757+00:00",
+  "cleaned_at": "2026-06-01T09:40:49.885899+00:00",
+  "last_updated": "2026-06-01",
   "content_hash": "sha256:14445c2d32d1263b0bd384ba02445ef51bfc2b8a0eba798873b796c9c090b89a",
   "stable_content_hash": "sha256:26b7ff240ffec6a22f265a717dc91c6dc645d6fe8a336e18c51eca2d9b039b17",
   "sections": [
