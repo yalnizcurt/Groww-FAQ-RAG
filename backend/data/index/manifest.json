@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-06-02T08:53:17.164499+00:00",
+  "built_at": "2026-06-03T09:14:11.971888+00:00",
   "embedder": {
     "model": "BAAI/bge-small-en-v1.5",
     "dim": 384
@@ -17,7 +17,7 @@
     "hdfc_equity": "sha256:c23840948af6fcca20580a8310a58db4c629f21f55b05250ba22a53b3798409b",
     "hdfc_focused": "sha256:6f8cf160fab38224558078c9f2558f3a97adc07e5036711c322ba4f0be6f5dab",
     "hdfc_elss": "sha256:99833537504ca8b2bb9608d6df4fe366c24b4a2c400b9ceda375bf579c439958",
-    "hdfc_large_cap": "sha256:e05c7ec1b2b57d968f002ebcf73d79a9b56e4e405ff0880b7e8083dd0fe9abfa"
+    "hdfc_large_cap": "sha256:ecf1adbcf9048f15e4a472faa0c759b23050678560ff432d4a5ab05a84f7c8bb"
   },
   "whitelist_urls": [
     "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
