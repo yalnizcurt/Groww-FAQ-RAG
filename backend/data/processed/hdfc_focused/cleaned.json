@@ -1,15 +1,15 @@
 {
   "scheme_id": "hdfc_focused",
   "source_url": "https://groww.in/mutual-funds/hdfc-focused-fund-direct-growth",
-  "fetched_at": "2026-06-22T10:20:50.375236+00:00",
-  "cleaned_at": "2026-06-22T10:20:50.518151+00:00",
-  "last_updated": "2026-06-22",
-  "content_hash": "sha256:80e17c7fa32cdce50f46acac93b7f9b1e669c9e3558ef1a99e2633ab914e2013",
+  "fetched_at": "2026-06-23T08:02:49.559093+00:00",
+  "cleaned_at": "2026-06-23T08:02:49.741977+00:00",
+  "last_updated": "2026-06-23",
+  "content_hash": "sha256:c0b0cb59ee1c40563656420712764b82c1ac2482b2bf28fababc191750a86142",
   "stable_content_hash": "sha256:2b2437c49271fae2be55d1d16505408990ee93add5ea26a90a1a80df3a093abc",
   "sections": [
     {
       "name": "Fund Details",
-      "text": "NAV: 19 Jun '26 | ₹261.30 | Min. for SIP | ₹100 | Fund size (AUM) | ₹26,082.42 Cr | Expense ratio | 0.78% | Rating | 5",
+      "text": "NAV: 22 Jun '26 | ₹262.81 | Min. for SIP | ₹100 | Fund size (AUM) | ₹26,082.42 Cr | Expense ratio | 0.78% | Rating | 5",
       "source": "widget"
     },
     {

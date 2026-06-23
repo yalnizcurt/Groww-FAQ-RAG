@@ -1,15 +1,15 @@
 {
   "scheme_id": "hdfc_mid_cap",
   "source_url": "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
-  "fetched_at": "2026-06-22T10:20:49.991182+00:00",
-  "cleaned_at": "2026-06-22T10:20:50.216703+00:00",
-  "last_updated": "2026-06-22",
-  "content_hash": "sha256:4cec9809c452ce6410258ccbe3b2d1d099030315333d60f7a5a16e7ec840e804",
-  "stable_content_hash": "sha256:d5465b488cf5f5e23f189748dd55b3283f1a2f8a45f8b5f04eae7c6a8010937b",
+  "fetched_at": "2026-06-23T08:02:48.195579+00:00",
+  "cleaned_at": "2026-06-23T08:02:48.864814+00:00",
+  "last_updated": "2026-06-23",
+  "content_hash": "sha256:55821cfa5c1dfee345fc994b98c053cda1b74a838cd1ce6a8299a303d5a6c173",
+  "stable_content_hash": "sha256:aa7a773f9b19a5bb064db4d0f1707981a7c44fb73131d43073311fbbb116aa85",
   "sections": [
     {
       "name": "Fund Details",
-      "text": "NAV: 19 Jun '26 | ₹226.50 | Min. for SIP | ₹100 | Fund size (AUM) | ₹97,350.48 Cr | Expense ratio | 0.76% | Rating | 5",
+      "text": "NAV: 22 Jun '26 | ₹227.62 | Min. for SIP | ₹100 | Fund size (AUM) | ₹97,350.48 Cr | Expense ratio | 0.75% | Rating | 5",
       "source": "widget"
     },
     {
