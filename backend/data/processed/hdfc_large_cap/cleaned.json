@@ -1,9 +1,9 @@
 {
   "scheme_id": "hdfc_large_cap",
   "source_url": "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth",
-  "fetched_at": "2026-07-18T06:27:30.522461+00:00",
-  "cleaned_at": "2026-07-18T06:27:30.675004+00:00",
-  "last_updated": "2026-07-18",
+  "fetched_at": "2026-07-19T07:03:31.251853+00:00",
+  "cleaned_at": "2026-07-19T07:03:31.392909+00:00",
+  "last_updated": "2026-07-19",
   "content_hash": "sha256:15f07dcf7fe18d1462f42f637d0a224dacee538d04b01271dc6799a5f4c1cb96",
   "stable_content_hash": "sha256:5fabb3ae451ad449f6141175d7c9571f9466aa37998bf952f8a2e70795a96260",
   "sections": [
