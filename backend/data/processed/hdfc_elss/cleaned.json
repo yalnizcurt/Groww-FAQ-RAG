@@ -1,15 +1,15 @@
 {
   "scheme_id": "hdfc_elss",
   "source_url": "https://groww.in/mutual-funds/hdfc-elss-tax-saver-fund-direct-plan-growth",
-  "fetched_at": "2026-07-21T07:05:01.223289+00:00",
-  "cleaned_at": "2026-07-21T07:05:01.408844+00:00",
-  "last_updated": "2026-07-21",
-  "content_hash": "sha256:ee78c989b6fb60986a62dd04db58e3f7ce0392fba9117739f017f3ffdc62d4eb",
+  "fetched_at": "2026-07-22T07:07:14.806956+00:00",
+  "cleaned_at": "2026-07-22T07:07:14.987609+00:00",
+  "last_updated": "2026-07-22",
+  "content_hash": "sha256:61a5372e73aeb65d810f3fc0d611499b656e77cd13d7204907079b2116d802a7",
   "stable_content_hash": "sha256:1b363416d8b6c0e734edbe886540c91bfaab24821b574c208ffe69994c38ee10",
   "sections": [
     {
       "name": "Fund Details",
-      "text": "NAV: 20 Jul '26 | ₹1,489.76 | Min. for SIP | ₹500 | Fund size (AUM) | ₹15,685.17 Cr | Expense ratio | 1.18% | Rating | 5",
+      "text": "NAV: 21 Jul '26 | ₹1,490.53 | Min. for SIP | ₹500 | Fund size (AUM) | ₹15,685.17 Cr | Expense ratio | 1.18% | Rating | 5",
       "source": "widget"
     },
     {
