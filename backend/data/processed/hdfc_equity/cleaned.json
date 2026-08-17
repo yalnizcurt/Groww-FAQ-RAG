@@ -1,9 +1,9 @@
 {
   "scheme_id": "hdfc_equity",
   "source_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
-  "fetched_at": "2026-08-16T04:57:50.483038+00:00",
-  "cleaned_at": "2026-08-16T04:57:50.659643+00:00",
-  "last_updated": "2026-08-16",
+  "fetched_at": "2026-08-17T05:05:47.741008+00:00",
+  "cleaned_at": "2026-08-17T05:05:47.899152+00:00",
+  "last_updated": "2026-08-17",
   "content_hash": "sha256:5b2ffad788ec8f0616f55d8e1c07d6c85471c4545ed3afd454c5efce1935b097",
   "stable_content_hash": "sha256:5bc5860d6a79709b993d199535b213fd35be7ec57eb792c526e3ba4ff98037c6",
   "sections": [
