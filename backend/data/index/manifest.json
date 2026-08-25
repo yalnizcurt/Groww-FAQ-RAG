@@ -1,5 +1,5 @@
 {
-  "built_at": "2026-08-24T05:09:14.738341+00:00",
+  "built_at": "2026-08-25T05:02:04.394732+00:00",
   "embedder": {
     "model": "BAAI/bge-small-en-v1.5",
     "dim": 384
@@ -13,11 +13,11 @@
     "hdfc_large_cap": 5
   },
   "source_hashes": {
-    "hdfc_mid_cap": "sha256:aa7a773f9b19a5bb064db4d0f1707981a7c44fb73131d43073311fbbb116aa85",
+    "hdfc_mid_cap": "sha256:b5f9127638c7107a6fc142db7f66537978804fa989b867f618d241229a3f15ca",
     "hdfc_equity": "sha256:0f76d8b27d9f6566208405e47c51c4a7ae344d3815047f1c2e61d9aae76d4d47",
     "hdfc_focused": "sha256:44c938b44efb8db93f8585647a080130fb37f4739207d792c6fb34fa26f4cc3e",
     "hdfc_elss": "sha256:9ada1e3497c4dc119980b73d556af5011a56bfb216d3ae5bb6ac7d858f376a69",
-    "hdfc_large_cap": "sha256:5fabb3ae451ad449f6141175d7c9571f9466aa37998bf952f8a2e70795a96260"
+    "hdfc_large_cap": "sha256:cef129afc85dbd456de9e2ec80b147770a2e1b2205a750b2ac176c896d1ebc44"
   },
   "whitelist_urls": [
     "https://groww.in/mutual-funds/hdfc-mid-cap-fund-direct-growth",
