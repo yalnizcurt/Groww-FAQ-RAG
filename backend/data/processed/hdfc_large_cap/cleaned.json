@@ -1,15 +1,15 @@
 {
   "scheme_id": "hdfc_large_cap",
   "source_url": "https://groww.in/mutual-funds/hdfc-large-cap-fund-direct-growth",
-  "fetched_at": "2026-10-23T09:27:57.780899+00:00",
-  "cleaned_at": "2026-10-23T09:27:57.947466+00:00",
-  "last_updated": "2026-10-23",
-  "content_hash": "sha256:922a47fd79cb9d7663561a79ef4b33761702e1e16ce0dd22f714c136cebdcab5",
+  "fetched_at": "2026-10-24T08:59:41.296307+00:00",
+  "cleaned_at": "2026-10-24T08:59:42.021757+00:00",
+  "last_updated": "2026-10-24",
+  "content_hash": "sha256:e75875913a263a662f4c424c9bdab71e1b95f2dcbb86b7042ae3a63e5b369118",
   "stable_content_hash": "sha256:cef129afc85dbd456de9e2ec80b147770a2e1b2205a750b2ac176c896d1ebc44",
   "sections": [
     {
       "name": "Fund Details",
-      "text": "NAV: 22 Oct '26 | ₹1,145.05 | Min. for SIP | ₹100 | Fund size (AUM) | ₹37,293.95 Cr | Expense ratio | 1.02% | Rating | 4",
+      "text": "NAV: 23 Oct '26 | ₹1,133.76 | Min. for SIP | ₹100 | Fund size (AUM) | ₹37,293.95 Cr | Expense ratio | 1.02% | Rating | 4",
       "source": "widget"
     },
     {
