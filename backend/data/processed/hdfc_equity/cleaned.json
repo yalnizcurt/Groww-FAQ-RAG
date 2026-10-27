@@ -1,15 +1,15 @@
 {
   "scheme_id": "hdfc_equity",
   "source_url": "https://groww.in/mutual-funds/hdfc-equity-fund-direct-growth",
-  "fetched_at": "2026-10-26T10:21:17.388550+00:00",
-  "cleaned_at": "2026-10-26T10:21:17.611450+00:00",
-  "last_updated": "2026-10-26",
-  "content_hash": "sha256:7b23b21226cde0fa415a80d088278314f2e5d2d2782748313ddec25ba755bc3e",
+  "fetched_at": "2026-10-27T09:56:55.048789+00:00",
+  "cleaned_at": "2026-10-27T09:56:55.233128+00:00",
+  "last_updated": "2026-10-27",
+  "content_hash": "sha256:6eaa1dd2f2417ad9f84eaf216b8a3845c52bc6b1bcdb32815ff1d8331e4efe2b",
   "stable_content_hash": "sha256:593f1a3a1d4f4a7ada747bff3e29b8d08f746ff64b3a020c70622c40df26026f",
   "sections": [
     {
       "name": "Fund Details",
-      "text": "NAV: 23 Oct '26 | ₹2,121.91 | Min. for SIP | ₹100 | Fund size (AUM) | ₹1,08,546.98 Cr | Expense ratio | 0.75% | Rating | 5",
+      "text": "NAV: 26 Oct '26 | ₹2,143.16 | Min. for SIP | ₹100 | Fund size (AUM) | ₹1,08,546.98 Cr | Expense ratio | 0.75% | Rating | 5",
       "source": "widget"
     },
     {
